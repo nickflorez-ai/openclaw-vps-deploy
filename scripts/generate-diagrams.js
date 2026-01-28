@@ -100,10 +100,14 @@ async function main() {
     fs.writeFileSync(svgPath, svg);
     console.log(`  ✓ ${name}.svg`);
     
-    // Convert to PNG using rsvg-convert
+    // Convert to PNG using rsvg-convert (smaller width for reasonable file size)
     const pngPath = path.join(OUTPUT_DIR, `${name}.png`);
     try {
-      execSync(`rsvg-convert -w 800 -b white "${svgPath}" -o "${pngPath}"`);
+      execSync(`rsvg-convert -w 500 -b white "${svgPath}" -o "${pngPath}"`);
+      // Compress with pngquant if available
+      try {
+        execSync(`pngquant --force --ext .png "${pngPath}" 2>/dev/null`);
+      } catch (e) { /* pngquant not installed, skip */ }
       console.log(`  ✓ ${name}.png`);
     } catch (err) {
       console.error(`  ✗ PNG conversion failed: ${err.message}`);
