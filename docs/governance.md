@@ -8,7 +8,11 @@
 
 Your organization has **Library Repos** — repositories that contain verified knowledge. When knowledge is committed to a Library Repo, it can trigger **Agents** to do work. Agents commit their work to **Output Repos** where humans review and approve it.
 
-![Governance Flow](../images/governance-flow.png)
+```
+┌──────────────┐     ┌──────────┐     ┌───────┐     ┌─────────────┐     ┌────────────────┐     ┌────────┐
+│ Library Repo │────▶│ Dispatch │────▶│ Agent │────▶│ Output Repo │────▶│ Human Approval │────▶│ Merged │
+└──────────────┘     └──────────┘     └───────┘     └─────────────┘     └────────────────┘     └────────┘
+```
 
 **The fundamental loop:**
 1. Humans commit knowledge to Library Repos
@@ -78,7 +82,41 @@ Agents are simple:
 
 A **Central Dispatch** watches all Library Repos and routes work to the right agents.
 
-![Dispatch Architecture](../images/dispatch-architecture.png)
+```
+                        ┌─────────────────────────────────────────┐
+                        │            LIBRARY REPOS                │
+                        │  ┌────────────┐ ┌────────┐ ┌─────────┐  │
+                        │  │ Guidelines │ │Policies│ │  Specs  │  │
+                        │  └─────┬──────┘ └───┬────┘ └────┬────┘  │
+                        └────────┼────────────┼───────────┼───────┘
+                                 │            │           │
+                                 └──────┬─────┴───────────┘
+                                        │
+                                        ▼
+                              ┌──────────────────┐
+                              │ CENTRAL DISPATCH │
+                              └────────┬─────────┘
+                                       │
+                    ┌──────────────────┼──────────────────┐
+                    │                  │                  │
+                    ▼                  ▼                  ▼
+            ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+            │ Agent:       │   │ Agent:       │   │ Agent:       │
+            │ Spec Gen     │   │ Doc Writer   │   │ Validator    │
+            └──────┬───────┘   └──────┬───────┘   └──────┬───────┘
+                   │                  │                  │
+                   ▼                  ▼                  ▼
+            ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+            │ Specs Repo   │   │ Training Repo│   │ Config Repo  │
+            └──────┬───────┘   └──────┬───────┘   └──────┬───────┘
+                   │                  │                  │
+                   └──────────────────┼──────────────────┘
+                                      │
+                                      ▼
+                            ┌──────────────────┐
+                            │  Human Approval  │
+                            └──────────────────┘
+```
 
 ### Dispatch Rules
 
@@ -178,7 +216,22 @@ This is a fundamental shift:
 
 ## Progressive Automation
 
-![Progressive Automation](../images/progressive-automation.png)
+```
+Phase 1: Human Approves All
+┌─────────┐     ┌────┐     ┌────────────────┐     ┌───────┐
+│ AI Work │────▶│ PR │────▶│ Human Approval │────▶│ Merge │
+└─────────┘     └────┘     └────────────────┘     └───────┘
+
+Phase 2: AI Pre-Review
+┌─────────┐     ┌────┐     ┌───────────┐     ┌────────────────┐     ┌───────┐
+│ AI Work │────▶│ PR │────▶│ AI Review │────▶│ Human Approval │────▶│ Merge │
+└─────────┘     └────┘     └───────────┘     └────────────────┘     └───────┘
+
+Phase 3: AI-to-AI
+┌─────────┐     ┌────┐     ┌───────────┐     ┌─────────────┐     ┌──────────────────┐
+│ AI Work │────▶│ PR │────▶│ AI Review │────▶│ AI Approval │────▶│ Human Spot-Check │
+└─────────┘     └────┘     └───────────┘     └─────────────┘     └──────────────────┘
+```
 
 **Phase 1: Human approves all agent work**
 - Every PR from an agent requires human approval
