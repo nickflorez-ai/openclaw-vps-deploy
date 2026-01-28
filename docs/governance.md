@@ -8,9 +8,7 @@
 
 **The source of truth is the foundation.** When changes are committed, they trigger work. Humans decide what to work on. AI executes. Humans approve results.
 
-```
-Human Decision → Commit → AI Work → Review → Human Approval → Merge
-```
+![Governance Flow](../images/governance-flow.png)
 
 ---
 
@@ -160,20 +158,13 @@ Route reviews to domain experts:
 
 ## Progressive Automation
 
+![Progressive Automation](../images/progressive-automation.png)
+
 **Phase 1 (Now): Human approves all PRs**
-```
-AI Work → PR → Human Approval → Merge
-```
 
 **Phase 2: AI pre-review, human final approval**
-```
-AI Work → PR → AI Review → Human Approval → Merge
-```
 
 **Phase 3: AI-to-AI with human oversight**
-```
-AI Work → PR → AI Review → AI Approval (low-risk) → Human spot-check
-```
 
 **Phase 4: Full automation for verified paths**
 - Verified chains of steps

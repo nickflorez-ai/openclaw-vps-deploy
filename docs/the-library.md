@@ -53,23 +53,7 @@ If The Library is wrong, everything built on it will be wrong.
 
 ## How Content Enters The Library
 
-```
-    Source Material
-         ↓
-   Research & Analysis
-         ↓
-   Draft Document/Config
-         ↓
-    Pull Request
-         ↓
-   Expert Review ←→ Revision
-         ↓
-    Approval(s)
-         ↓
-    Merge to Main
-         ↓
-  📚 In The Library
-```
+![Content Flow](../images/content-flow.png)
 
 ### Who Can Contribute
 
