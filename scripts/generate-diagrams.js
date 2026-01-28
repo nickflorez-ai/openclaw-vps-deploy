@@ -27,11 +27,11 @@ const diagrams = {
   'governance-flow': {
     title: 'Governance Flow',
     mermaid: `graph LR
-    A[Human Decision] --> B[Commit]
-    B --> C[AI Work]
-    C --> D[Review]
+    A[Library Repo] --> B[Dispatch]
+    B --> C[Agent]
+    C --> D[Output Repo]
     D --> E[Human Approval]
-    E --> F[Merge]`
+    E --> F[Merged]`
   },
   'progressive-automation': {
     title: 'Progressive Automation Phases',

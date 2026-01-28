@@ -6,47 +6,176 @@
 
 ## Core Concept
 
-**The source of truth is the foundation.** When changes are committed, they trigger work. Humans decide what to work on. AI executes. Humans approve results.
+Your organization has **Library Repos** — repositories that contain verified knowledge. When knowledge is committed to a Library Repo, it can trigger **Agents** to do work. Agents commit their work to **Output Repos** where humans review and approve it.
 
-![Governance Flow](../images/governance-flow.png)
+```
+Library Repo (knowledge) → Dispatch → Agents → Output Repo (work product)
+                                                      ↓
+                                               Human Approval
+```
+
+**The fundamental loop:**
+1. Humans commit knowledge to Library Repos
+2. Agents wake up and do work based on that knowledge
+3. Agents commit their work to Output Repos
+4. Humans review and approve the work
 
 ---
 
-## Principles
+## Library Repos
 
-1. **Accuracy First** — Only verified, correct information enters the source of truth
-2. **Accountability** — Every change has an author and approver(s)
-3. **Transparency** — All changes are visible and auditable via Git
-4. **Domain Expertise** — Approvers are subject matter experts
-5. **Chain of Custody** — Every step is tracked: who did what, who approved it
+A **Library Repo** is a source of verified knowledge. Each Library Repo has:
+
+| Component | Description |
+|-----------|-------------|
+| **Owner** | The person accountable for the repo's accuracy |
+| **Contributors** | People (or AIs) who can propose changes |
+| **Approvers** | Experts who verify content before merge |
+| **Dispatch Rules** | Which agents should wake up when content changes |
+
+### Examples of Library Repos
+
+- **Lending Guidelines** — FNMA, FHA, VA guidelines
+- **Company Policies** — HR, compliance, operations
+- **Product Specs** — Requirements, configurations
+- **Training Materials** — Procedures, best practices
+
+### The Rule
+
+> **Only what is *right* goes into a Library Repo.**
+
+Library Repos are the source of truth. If the knowledge is wrong, everything built on it will be wrong.
+
+---
+
+## Agents
+
+An **Agent** is an AI with a specific job. Think of it like an employee with:
+
+| Component | Description |
+|-----------|-------------|
+| **Job Description** | What the agent does (e.g., "Generate configuration specs") |
+| **Skills** | What tools the agent can use (e.g., search, write, analyze) |
+| **Triggers** | What commits wake the agent up |
+| **Output** | Where the agent commits its work |
+
+### How Agents Work
+
+Agents are simple:
+1. They **watch** for commits to specific folders in Library Repos
+2. When triggered, they **read** the changed content
+3. They **determine** what work needs to be done (if any)
+4. They **do the work** using their skills
+5. They **commit** their output to an Output Repo
+
+### Example Agents
+
+| Agent | Watches | Does | Outputs To |
+|-------|---------|------|------------|
+| Spec Generator | `guidelines/fnma/` | Generates system specs from guidelines | `specs/` repo |
+| Doc Writer | `policies/` | Creates training docs from policies | `training/` repo |
+| Config Validator | `config/` | Validates configurations against specs | Same repo (PR) |
+
+---
+
+## The Dispatch System
+
+A **Central Dispatch** watches all Library Repos and routes work to the right agents.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      LIBRARY REPOS                          │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐    │
+│  │Guidelines│  │ Policies │  │  Specs   │  │ Config   │    │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘    │
+└───────┼─────────────┼─────────────┼─────────────┼──────────┘
+        │             │             │             │
+        └─────────────┴──────┬──────┴─────────────┘
+                             │
+                             ▼
+                 ┌───────────────────────┐
+                 │   CENTRAL DISPATCH    │
+                 │                       │
+                 │  • Watches for commits│
+                 │  • Looks up rules     │
+                 │  • Wakes agents       │
+                 └───────────┬───────────┘
+                             │
+           ┌─────────────────┼─────────────────┐
+           │                 │                 │
+           ▼                 ▼                 ▼
+    ┌────────────┐    ┌────────────┐    ┌────────────┐
+    │  Agent A   │    │  Agent B   │    │  Agent C   │
+    │ (Spec Gen) │    │ (Doc Write)│    │ (Validator)│
+    └──────┬─────┘    └──────┬─────┘    └──────┬─────┘
+           │                 │                 │
+           ▼                 ▼                 ▼
+    ┌────────────┐    ┌────────────┐    ┌────────────┐
+    │ Specs Repo │    │Training Rep│    │ Config Repo│
+    │   (PR)     │    │    (PR)    │    │   (PR)     │
+    └────────────┘    └────────────┘    └────────────┘
+           │                 │                 │
+           └─────────────────┴─────────────────┘
+                             │
+                             ▼
+                    ┌─────────────────┐
+                    │ Human Approval  │
+                    └─────────────────┘
+```
+
+### Dispatch Rules
+
+Each Library Repo can have dispatch rules that specify:
+
+```yaml
+# Example: When guidelines change, trigger spec generator
+triggers:
+  - path: "guidelines/fnma/**"
+    agent: spec-generator
+    output: specs-repo
+    
+  - path: "guidelines/fha/**"
+    agent: spec-generator
+    output: specs-repo
+    
+  - path: "policies/**"
+    agent: doc-writer
+    output: training-repo
+```
+
+---
+
+## Output Repos
+
+An **Output Repo** is where agents commit their work. It may be:
+
+- **The same repo** (agent creates a PR in the Library Repo)
+- **A different repo** (agent outputs to a dedicated work repo)
+- **A personal workspace** (agent outputs to a human's review folder)
+
+### Why Separate Output Repos?
+
+Separating input (Library) from output (Work) repos provides:
+
+1. **Clean separation** — Knowledge vs. generated artifacts
+2. **Different owners** — Library owned by SMEs, Output owned by consumers
+3. **Different review cycles** — Library changes rarely, Output changes often
+4. **Blast radius** — Agent mistakes don't pollute the source of truth
 
 ---
 
 ## Roles
 
-### Contributor
-Anyone who can propose changes.
+### Repo Owner
+Final authority for a repository. Sets the rules.
 
 **Permissions:**
-- Clone/fork repositories
-- Create branches
-- Submit pull requests
-- Respond to review comments
+- Merge pull requests
+- Define dispatch rules (which agents respond to changes)
+- Manage branch protection
+- Override in emergencies
 
-**Who:** AI assistants, analysts, engineers, anyone with access
-
----
-
-### Reviewer
-Can review and comment but cannot approve.
-
-**Permissions:**
-- All Contributor permissions
-- Add review comments
-- Request changes
-- Discuss in PR threads
-
-**Who:** Team members, stakeholders, AI reviewers (for preliminary review)
+**Who:** The person accountable for that repository's content
 
 ---
 
@@ -54,105 +183,39 @@ Can review and comment but cannot approve.
 Can approve pull requests, signaling the content is accurate.
 
 **Permissions:**
-- All Reviewer permissions
 - Approve pull requests
 - Block merges if issues found
 
-**Who:** Department heads, senior analysts, designated experts
+**Who:** Domain experts, senior analysts, designated reviewers
 
 ---
 
-### Repo Owner
-Final authority for a repository. Merges approved changes.
+### Contributor
+Anyone who can propose changes.
 
 **Permissions:**
-- All Approver permissions
-- Merge pull requests
-- Override in emergency situations
-- Manage branch protection rules
+- Create branches
+- Submit pull requests
+- Respond to review comments
 
-**Who:** The person accountable for that repository's content
+**Who:** Humans, AI agents, automated systems
 
 ---
 
-## The Human Role: Pull Request Approval
+## The Human Role
 
-**The primary human job is reviewing and approving PRs.**
+**Humans do two things:**
+
+1. **Commit knowledge** to Library Repos
+2. **Approve work** in Output Repos
+
+That's it. The agents handle everything in between.
 
 This is a fundamental shift:
 - **Before:** Humans do the work AND review it
-- **After:** AI does the work, humans approve it
-
-Humans are freed FROM doing the work, not burdened with more review.
+- **After:** Humans provide knowledge, AI does work, humans approve results
 
 **Every human becomes a manager of AI work output.**
-
----
-
-## Approval Model
-
-**All approvals are unanimous** — any designated Approver can approve. No voting, no ordering, no sequencing.
-
-The only question: **How many approvals are required?**
-
-### Single Approver (1 required)
-```
-PR Submitted → Review → 1 Approver Approval → Merge
-```
-- Fast path for lower-risk changes
-- GitHub setting: `required_approving_review_count: 1`
-
-### Multiple Approvers (N required)
-```
-PR Submitted → Review → N Approver Approvals → Merge
-```
-- For higher-risk or cross-domain changes
-- GitHub setting: `required_approving_review_count: N`
-
----
-
-## AI and Governance
-
-### AI as Contributor
-- AI submits PRs from dedicated GitHub accounts
-- PRs clearly show AI authorship
-- **AI cannot approve its own PRs**
-
-### AI as Reviewer (Future)
-- AI can review other AI's work
-- AI can flag issues, suggest improvements
-- Human makes final approval decision (initially)
-
-### Audit Trail
-- All AI contributions tracked in Git
-- User responsible for their AI's submissions
-- Complete chain of custody for compliance
-
----
-
-## GitHub Implementation
-
-### Branch Protection Rules
-
-```yaml
-# Standard protection
-required_pull_request_reviews:
-  required_approving_review_count: 1
-  dismiss_stale_reviews: true
-  require_code_owner_reviews: true
-```
-
-### CODEOWNERS File
-
-Route reviews to domain experts:
-
-```
-# Example CODEOWNERS
-/docs/           @docs-team
-/config/         @config-team
-/policies/       @operations-team
-*                @repo-owner
-```
 
 ---
 
@@ -160,30 +223,78 @@ Route reviews to domain experts:
 
 ![Progressive Automation](../images/progressive-automation.png)
 
-**Phase 1 (Now): Human approves all PRs**
+**Phase 1: Human approves all agent work**
+- Every PR from an agent requires human approval
 
 **Phase 2: AI pre-review, human final approval**
+- Agents review each other's work
+- Human does final approval
 
 **Phase 3: AI-to-AI with human oversight**
+- Low-risk changes auto-approved by AI
+- Human spot-checks periodically
 
 **Phase 4: Full automation for verified paths**
-- Verified chains of steps
-- Thousands of steps without error
+- Proven workflows run autonomously
 - Humans only intervene on exceptions
 
 **As trust builds, humans exit loops. Velocity increases.**
 
 ---
 
-## Emergency Changes
+## Chain of Custody
 
-For critical/urgent changes:
+Every step is tracked:
 
-1. Repo Owner can merge with expedited review
-2. Must document reason in PR
-3. Post-merge review required within 24 hours
-4. Notify stakeholders immediately
+| Step | Recorded |
+|------|----------|
+| Knowledge committed | Who, when, what changed |
+| Dispatch triggered | Which agents, why |
+| Agent work | What was done, what was output |
+| PR created | By which agent, to which repo |
+| Approval | By whom, when |
+| Merge | By whom, when |
+
+Complete audit trail for compliance.
 
 ---
 
-*Simple governance: Humans decide, AI executes, humans approve. Full transparency at every step.*
+## GitHub Implementation
+
+### Branch Protection
+
+```yaml
+required_pull_request_reviews:
+  required_approving_review_count: 1
+  dismiss_stale_reviews: true
+  require_code_owner_reviews: true
+```
+
+### CODEOWNERS
+
+Route reviews to domain experts:
+
+```
+# Example CODEOWNERS
+/guidelines/     @compliance-team
+/policies/       @operations-team
+*                @repo-owner
+```
+
+---
+
+## Summary
+
+| Component | Purpose |
+|-----------|---------|
+| **Library Repos** | Source of truth — verified knowledge |
+| **Agents** | Workers — do specific jobs when triggered |
+| **Dispatch** | Router — watches commits, wakes agents |
+| **Output Repos** | Work products — where agents commit results |
+| **Humans** | Knowledge providers + Approvers |
+
+```
+Knowledge → Dispatch → Agents → Work → Approval → Done
+```
+
+*Simple governance: Humans provide knowledge, AI does work, humans approve. Full transparency at every step.*
