@@ -1,0 +1,34 @@
+{
+  "agents": {
+    "defaults": {
+      "workspace": "/root/clawd",
+      "model": {
+        "primary": "anthropic/claude-sonnet-4-20250514",
+        "fallbacks": ["openai/gpt-4o"]
+      },
+      "memorySearch": {
+        "sources": ["memory", "sessions"],
+        "experimental": {
+          "sessionMemory": true
+        }
+      }
+    }
+  },
+  "gateway": {
+    "mode": "local"
+  },
+  "channels": {
+    "telegram": {
+      "botToken": "YOUR_BOT_TOKEN_HERE",
+      "dmPolicy": "pairing",
+      "allowFrom": [],
+      "groupPolicy": "disabled",
+      "streamMode": "partial"
+    }
+  },
+  "plugins": {
+    "entries": {
+      "telegram": {"enabled": true}
+    }
+  }
+}
