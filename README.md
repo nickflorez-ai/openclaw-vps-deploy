@@ -50,7 +50,6 @@ After running the setup script:
 ### 1. Add API Keys
 
 ```bash
-# Create .env with your API keys
 cat > ~/.clawdbot/.env << 'EOF'
 ANTHROPIC_API_KEY=your-key-here
 OPENAI_API_KEY=your-key-here  # Optional fallback
@@ -58,22 +57,27 @@ EOF
 chmod 600 ~/.clawdbot/.env
 ```
 
-### 2. Configure Telegram Bot
+### 2. Configure Discord Bot
 
-Edit `~/.clawdbot/clawdbot.json` and add your bot token:
+Edit `~/.clawdbot/clawdbot.json` and add your bot configuration:
 
 ```json
 {
   "channels": {
-    "telegram": {
+    "discord": {
       "botToken": "YOUR_BOT_TOKEN",
-      "dmPolicy": "pairing",
-      "allowFrom": [],
-      "groupPolicy": "disabled"
+      "guildId": "YOUR_GUILD_ID",
+      "channelIds": ["CHANNEL_ID"],
+      "dmPolicy": "disabled"
     }
   }
 }
 ```
+
+**Required values:**
+- `botToken` — Discord bot token from [Discord Developer Portal](https://discord.com/developers/applications)
+- `guildId` — Your Discord server ID
+- `channelIds` — Array of channel IDs this agent can respond in
 
 ### 3. Customize Agent
 
@@ -89,9 +93,18 @@ clawdbot gateway start
 clawdbot status
 ```
 
-### 5. Pair with Telegram
+### 5. Verify Discord Connection
 
-Message your bot on Telegram. Complete the pairing process.
+Check that the bot is online in your Discord server and responding in the configured channel.
+
+---
+
+## Security
+
+See [docs/security.md](docs/security.md) for mandatory VPS hardening steps:
+- Tailscale-only SSH
+- Discord channel allowlist
+- Firewall configuration
 
 ---
 
@@ -104,8 +117,7 @@ Message your bot on Telegram. Complete the pairing process.
 ├── USER.md                     # User info
 ├── MEMORY.md                   # Long-term memory
 ├── memory/                     # Daily notes
-├── logs/                       # Log files
-└── scripts/                    # Utility scripts
+└── logs/                       # Log files
 
 ~/.clawdbot/
 ├── clawdbot.json              # Main config
@@ -127,12 +139,6 @@ The setup installs these cron jobs for QMD indexing:
 | 3:00 AM | `qmd update && qmd embed` |
 
 Logs: `/root/clawd/logs/qmd-index.log`
-
----
-
-## Security
-
-See [docs/security.md](docs/security.md) for mandatory VPS hardening steps.
 
 ---
 
