@@ -2,9 +2,11 @@
 
 Deploy [OpenClaw](https://openclaw.ai) personal AI assistant on Hostinger VPS in minutes.
 
+> **📢 Important:** Hostinger's catalog lists this as **"Moltbot"** — Moltbot and OpenClaw are the same product. The name was recently changed, but Hostinger's marketplace still uses the original name.
+
 ---
 
-## Deploy OpenClaw
+## Quick Start
 
 ### 1. Get a Hostinger VPS
 
@@ -28,17 +30,31 @@ During setup, you'll enter:
 2. Visit `http://your-vps-ip:port`
 3. Enter your gateway token → **Connect**
 
-You're in.
+You're in! Look for **"Health: OK"** in the top-right corner.
 
 ---
 
-## Connect Discord
+## Documentation
 
-1. Create a bot at [Discord Developer Portal](https://discord.com/developers/applications)
-2. Enable **Privileged Gateway Intents** (Message Content, Server Members, Presence)
-3. Invite bot to your server
-4. In OpenClaw: **Settings** → **Config** → **RAW**
-5. Add:
+Follow these guides in order for a complete setup:
+
+| # | Guide | Description |
+|---|-------|-------------|
+| 01 | [Hostinger Setup](docs/01-hostinger-setup.md) | Initial VPS deployment |
+| 02 | [Security](docs/02-security.md) | Firewall, Tailscale, access control |
+| 03 | [Discord Setup](docs/03-discord-setup.md) | Connect Discord bot (executive flow) |
+| 04 | [Google OAuth](docs/04-google-oauth.md) | Gmail, Calendar, Drive integration |
+| 05 | [Asana Integration](docs/05-asana-oauth.md) | Task and project management |
+| 06 | [GitHub Auth](docs/06-github-auth.md) | AI GitHub account and PR workflow |
+| 07 | [Enable Memory](docs/07-memory-enable.md) | Persistent agent memory |
+| 08 | [Plugins](docs/08-plugins.md) | Installing skills from ClawdHub |
+| 10 | [Verification](docs/10-verification.md) | Post-deployment checklist |
+
+---
+
+## Quick Config Examples
+
+### Discord
 
 ```json
 {
@@ -53,13 +69,7 @@ You're in.
 }
 ```
 
-6. **Apply** → **Update** → **Restart Gateway**
-
----
-
-## Connect WhatsApp
-
-1. In **Config** → **RAW**, add:
+### WhatsApp
 
 ```json
 {
@@ -72,17 +82,29 @@ You're in.
 }
 ```
 
-2. **Apply** → **Update**
-3. **Channels** → **Show QR** → Scan with WhatsApp
+### Enable Memory
+
+```json
+{
+  "agents": {
+    "defaults": {
+      "memory": {
+        "enabled": true
+      }
+    }
+  }
+}
+```
 
 ---
 
 ## Customize Your Agent
 
 Edit workspace files:
-- `SOUL.md` — Personality
-- `USER.md` — User info  
-- `AGENTS.md` — Behavior
+- `SOUL.md` — Personality and voice
+- `USER.md` — User information  
+- `AGENTS.md` — Behavior and rules
+- `MEMORY.md` — Long-term memory
 
 ---
 
@@ -95,7 +117,8 @@ Docker Manager → Your project → **Rebuild**
 ## Resources
 
 - [OpenClaw](https://openclaw.ai)
-- [Hostinger Setup Guide](docs/hostinger-setup.md)
+- [ClawdHub](https://clawdhub.com) — Plugins and skills
+- [Hostinger Support](https://www.hostinger.com/support)
 - [Security Guide](https://www.hostinger.com/support/how-to-secure-and-harden-moltbot-security/)
 
 ---
